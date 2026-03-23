@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NERC Practice Test</title>
+
+<style>
+body { font-family: Arial; background:#0f172a; color:white; padding:20px;}
+.container { max-width:900px; margin:auto;}
+.question-block { border-bottom:1px solid #334155; padding-bottom:20px; margin-bottom:25px;}
+.question { font-size:18px; line-height:1.5; white-space: pre-wrap;}
+.option { background:#1e293b; padding:10px; margin:5px 0; border-radius:6px; cursor:pointer;}
+.option:hover { background:#334155;}
+.selected { background:#2563eb !important;}
+button { margin-top:15px; padding:10px; border:none; border-radius:6px; background:#22c55e; cursor:pointer;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>NERC RC Practice Test</h1>
+<div id="quiz"></div>
+<button onclick="submitTest()">Submit</button>
+<button onclick="resetTest()">Reset</button>
+<h2 id="result"></h2>
+</div>
+
+<script>
+
+const flashcards = [
+
+{
+question: `When does the Contingency Reserve Restoration Period begin?`,
+options: [
+"A. At the top of the hour after the Reportable Disturbance",
+"B. At the start of the Reportable Disturbance",
+"C. At the end of the Disturbance Recovery Period",
+"D. When all Contingency Reserve has been exhausted"
+],
+answer: "C"
+},
+
+{
+question: `Which of the following terms is defined as the scan rate values of a Balancing Authority's ACE measured in MW, which includes the difference between the Balancing Authority's Net Interchange Actual and its Net Interchange Scheduled, plus its Frequency Bias obligation, plus any known meter error?`,
+options: [
+"A. Automatic Time Error",
+"B. Reporting ACE",
+"C. ACE Control Error",
+"D. Reserve Sharing Group Reporting"
+],
+answer: "B"
+},
+
+{
+question: `Which of the following terms applies to the Western Interconnection only, and modifies the ACE equation to correct accumulated time error?`,
+options: [
+"A. Reporting ACE",
+"B. Automatic Time Error Correction",
+"C. Reserve Sharing Group Reporting ACE",
+"D. Regulation Reserve Sharing Group"
+],
+answer: "B"
+},
+
+{
+question: `Which part of the ACE equation helps stabilize Interconnection frequency error?`,
+options: [
+"A. (FA-FS) - IME",
+"B. NIA - NIS",
+"C. 10B (FA-FS)",
+"D. IME"
+],
+answer: "C"
+},
+
+{
+question: `Which element is NOT part of the ACE frequency component?`,
+options: [
+"A. Actual Frequency",
+"B. Scheduled Frequency",
+"C. Frequency Bias",
+"D. Meter Error"
+],
+answer: "D"
+},
+
+{
+question: `What does a negative ACE indicate?`,
+options: [
+"A. Overgeneration",
+"B. Undergeneration",
+"C. Balanced system",
+"D. No interchange"
+],
+answer: "B"
+},
+
+{
+question: `What does a positive ACE indicate?`,
+options: [
+"A. Undergeneration",
+"B. Overgeneration",
+"C. Balanced system",
+"D. No load"
+],
+answer: "B"
+},
+
+{
+question: `Which system uses ACE to control frequency and interchange?`,
+options: [
+"A. SCADA",
+"B. AGC",
+"C. EMS",
+"D. AVR"
+],
+answer: "B"
+},
+
+{
+question: `What is the purpose of AGC?`,
+options: [
+"A. Control voltage",
+"B. Maintain frequency and interchange",
+"C. Reduce cost",
+"D. Increase load"
+],
+answer: "B"
+},
+
+{
+question: `What is Inadvertent Interchange?`,
+options: [
+"A. Scheduled interchange",
+"B. Difference between actual and scheduled interchange",
+"C. Load mismatch",
+"D. Voltage error"
+],
+answer: "B"
+},{
+question: `What is frequency error?`,
+options: [
+"A. Difference between actual and scheduled frequency",
+"B. Difference between load and generation",
+"C. ACE value",
+"D. Interchange error"
+],
+answer: "A"
+},
+
+{
+question: `What is interchange error?`,
+options: [
+"A. Frequency difference",
+"B. Difference between actual and scheduled interchange",
+"C. Load mismatch",
+"D. Voltage error"
+],
+answer: "B"
+},
+
+{
+question: `What is the normal system frequency in North America?`,
+options: [
+"A. 50 Hz",
+"B. 59 Hz",
+"C. 60 Hz",
+"D. 61 Hz"
+],
+answer: "C"
+},
+
+{
+question: `Which reserve is used immediately to arrest frequency decline?`,
+options: [
+"A. Supplemental Reserve",
+"B. Spinning Reserve",
+"C. Non-spinning Reserve",
+"D. Replacement Reserve"
+],
+answer: "B"
+},
+
+{
+question: `Which reserve replaces spinning reserve after initial response?`,
+options: [
+"A. Regulation Reserve",
+"B. Supplemental Reserve",
+"C. Contingency Reserve",
+"D. Replacement Reserve"
+],
+answer: "B"
+},
+
+{
+question: `What is the purpose of contingency reserve?`,
+options: [
+"A. Handle normal operations",
+"B. Recover from unexpected disturbances",
+"C. Reduce voltage",
+"D. Increase load"
+],
+answer: "B"
+},
+
+{
+question: `What does CPS1 measure?`,
+options: [
+"A. Voltage performance",
+"B. Frequency control performance",
+"C. Load forecasting",
+"D. Transmission loading"
+],
+answer: "B"
+},
+
+{
+question: `What is BAAL?`,
+options: [
+"A. Balancing Authority ACE Limit",
+"B. Backup Area Allocation Limit",
+"C. Balancing Area Average Load",
+"D. Bulk Area Alert Level"
+],
+answer: "A"
+},
+
+{
+question: `Exceeding BAAL for too long indicates what?`,
+options: [
+"A. Normal operation",
+"B. Reliability risk",
+"C. Load increase",
+"D. Voltage stability"
+],
+answer: "B"
+},
+
+{
+question: `What does frequency bias represent?`,
+options: [
+"A. Cost of generation",
+"B. Load size",
+"C. Frequency response characteristic",
+"D. Voltage level"
+],
+answer: "C"
+},
+
+{
+question: `What is a Balancing Authority responsible for?`,
+options: [
+"A. Voltage only",
+"B. Maintaining ACE and reliability",
+"C. Transmission planning",
+"D. Generator maintenance"
+],
+answer: "B"
+},
+
+{
+question: `What is a tie-line?`,
+options: [
+"A. Internal line",
+"B. Line between two BAs",
+"C. Generator connection",
+"D. Load connection"
+],
+answer: "B"
+},
+
+{
+question: `What is Net Interchange Actual (NIA)?`,
+options: [
+"A. Scheduled interchange",
+"B. Actual measured interchange",
+"C. Load",
+"D. Generation"
+],
+answer: "B"
+},
+
+{
+question: `What is Net Interchange Scheduled (NIS)?`,
+options: [
+"A. Actual interchange",
+"B. Scheduled interchange",
+"C. Load",
+"D. Frequency"
+],
+answer: "B"
+},
+
+{
+question: `What happens when ACE is zero?`,
+options: [
+"A. Perfect balance",
+"B. Overgeneration",
+"C. Undergeneration",
+"D. Frequency error"
+],
+answer: "A"
+},{
+question: `What is the purpose of a Reliability Coordinator (RC)?`,
+options: [
+"A. Control generation",
+"B. Maintain reliability of the bulk power system",
+"C. Schedule interchange",
+"D. Control voltage"
+],
+answer: "B"
+},
+
+{
+question: `What tool does the RC use to monitor system conditions?`,
+options: [
+"A. AGC",
+"B. SCADA",
+"C. State Estimator",
+"D. Relay"
+],
+answer: "C"
+},
+
+{
+question: `What is a contingency?`,
+options: [
+"A. Planned outage",
+"B. Unexpected failure of system component",
+"C. Load increase",
+"D. Generator ramp"
+],
+answer: "B"
+},
+
+{
+question: `What does N-1 contingency mean?`,
+options: [
+"A. One generator online",
+"B. Loss of one system component",
+"C. One reserve online",
+"D. One load offline"
+],
+answer: "B"
+},
+
+{
+question: `What is contingency analysis used for?`,
+options: [
+"A. Load forecasting",
+"B. Predicting system response to outages",
+"C. Voltage control",
+"D. Scheduling interchange"
+],
+answer: "B"
+},
+
+{
+question: `What is a System Operating Limit (SOL)?`,
+options: [
+"A. Maximum safe system limit",
+"B. Voltage limit only",
+"C. Frequency limit only",
+"D. Load limit only"
+],
+answer: "A"
+},
+
+{
+question: `What is an Interconnection Reliability Operating Limit (IROL)?`,
+options: [
+"A. Internal system limit",
+"B. Limit that if exceeded could lead to instability",
+"C. Load limit",
+"D. Voltage limit"
+],
+answer: "B"
+},
+
+{
+question: `Which is more severe: SOL or IROL?`,
+options: [
+"A. SOL",
+"B. IROL",
+"C. Same",
+"D. Depends"
+],
+answer: "B"
+},
+
+{
+question: `What must happen if an IROL is exceeded?`,
+options: [
+"A. Nothing",
+"B. Immediate corrective action",
+"C. Wait 30 minutes",
+"D. Increase load"
+],
+answer: "B"
+},
+
+{
+question: `What is voltage collapse?`,
+options: [
+"A. Frequency drop",
+"B. Loss of voltage stability",
+"C. Generator failure",
+"D. Load increase"
+],
+answer: "B"
+},
+
+{
+question: `What helps prevent voltage collapse?`,
+options: [
+"A. Load shedding",
+"B. Reactive power support",
+"C. Increasing frequency",
+"D. Reducing generation"
+],
+answer: "B"
+},
+
+{
+question: `Reactive power primarily affects what?`,
+options: [
+"A. Frequency",
+"B. Voltage",
+"C. Load",
+"D. Generation"
+],
+answer: "B"
+},
+
+{
+question: `Real power primarily affects what?`,
+options: [
+"A. Voltage",
+"B. Frequency",
+"C. Current",
+"D. Resistance"
+],
+answer: "B"
+},
+
+{
+question: `What is a capacitor used for?`,
+options: [
+"A. Absorb reactive power",
+"B. Supply reactive power",
+"C. Control frequency",
+"D. Reduce load"
+],
+answer: "B"
+},
+
+{
+question: `What is a reactor used for?`,
+options: [
+"A. Supply reactive power",
+"B. Absorb reactive power",
+"C. Increase voltage",
+"D. Reduce load"
+],
+answer: "B"
+},{
+question: `What is voltage stability?`,
+options: [
+"A. Maintaining frequency",
+"B. Maintaining acceptable voltage levels",
+"C. Controlling load",
+"D. Managing generation"
+],
+answer: "B"
+},
+
+{
+question: `Low voltage is typically caused by what?`,
+options: [
+"A. Excess reactive power",
+"B. Lack of reactive power",
+"C. High frequency",
+"D. Low load"
+],
+answer: "B"
+},
+
+{
+question: `High voltage is typically caused by what?`,
+options: [
+"A. Lack of reactive power",
+"B. Excess reactive power",
+"C. High load",
+"D. Low generation"
+],
+answer: "B"
+},
+
+{
+question: `What is load shedding?`,
+options: [
+"A. Increasing load",
+"B. Reducing load to maintain system stability",
+"C. Increasing generation",
+"D. Reducing voltage"
+],
+answer: "B"
+},
+
+{
+question: `When is load shedding used?`,
+options: [
+"A. Normal operation",
+"B. Emergency conditions",
+"C. Maintenance",
+"D. Scheduling"
+],
+answer: "B"
+},
+
+{
+question: `What is Underfrequency Load Shedding (UFLS)?`,
+options: [
+"A. Load increase",
+"B. Automatic load reduction due to low frequency",
+"C. Voltage control",
+"D. Generation increase"
+],
+answer: "B"
+},
+
+{
+question: `What triggers UFLS?`,
+options: [
+"A. High voltage",
+"B. Low frequency",
+"C. High load",
+"D. Generator trip"
+],
+answer: "B"
+},
+
+{
+question: `What is Under Voltage Load Shedding (UVLS)?`,
+options: [
+"A. Load increase",
+"B. Automatic load reduction due to low voltage",
+"C. Generation increase",
+"D. Frequency control"
+],
+answer: "B"
+},
+
+{
+question: `What triggers UVLS?`,
+options: [
+"A. High frequency",
+"B. Low voltage",
+"C. High generation",
+"D. Low load"
+],
+answer: "B"
+},
+
+{
+question: `What is blackstart capability?`,
+options: [
+"A. Restart system without external power",
+"B. Increase load",
+"C. Reduce frequency",
+"D. Control voltage"
+],
+answer: "A"
+},
+
+{
+question: `Which units typically have blackstart capability?`,
+options: [
+"A. Nuclear",
+"B. Hydro or diesel",
+"C. Wind",
+"D. Solar"
+],
+answer: "B"
+},
+
+{
+question: `What is system restoration?`,
+options: [
+"A. Normal operation",
+"B. Rebuilding system after blackout",
+"C. Load increase",
+"D. Voltage reduction"
+],
+answer: "B"
+},
+
+{
+question: `What is islanding?`,
+options: [
+"A. Connecting systems",
+"B. Separating part of the system",
+"C. Increasing load",
+"D. Reducing voltage"
+],
+answer: "B"
+},
+
+{
+question: `Why is islanding used?`,
+options: [
+"A. Reduce cost",
+"B. Preserve system stability",
+"C. Increase load",
+"D. Improve voltage"
+],
+answer: "B"
+},
+
+{
+question: `What is synchronization?`,
+options: [
+"A. Disconnecting systems",
+"B. Matching voltage, frequency, and phase",
+"C. Increasing load",
+"D. Reducing generation"
+],
+answer: "B"
+},
+
+{
+question: `What is a breaker used for?`,
+options: [
+"A. Increase voltage",
+"B. Interrupt current flow",
+"C. Control frequency",
+"D. Increase load"
+],
+answer: "B"
+},
+
+{
+question: `What is a relay used for?`,
+options: [
+"A. Increase load",
+"B. Detect faults and initiate protection",
+"C. Control voltage",
+"D. Increase frequency"
+],
+answer: "B"
+},
+
+{
+question: `What is a fault?`,
+options: [
+"A. Normal condition",
+"B. Abnormal electrical condition",
+"C. Load increase",
+"D. Voltage rise"
+],
+answer: "B"
+},
+
+{
+question: `What is a short circuit?`,
+options: [
+"A. Open circuit",
+"B. Direct connection causing high current",
+"C. Low voltage condition",
+"D. Normal operation"
+],
+answer: "B"
+},
+
+{
+question: `What is protection coordination?`,
+options: [
+"A. Increasing load",
+"B. Ensuring correct protective device operation",
+"C. Voltage control",
+"D. Frequency control"
+],
+answer: "B"
+},{
+question: `What is a transformer used for?`,
+options: [
+"A. Change voltage levels",
+"B. Control frequency",
+"C. Reduce load",
+"D. Increase current"
+],
+answer: "A"
+},
+
+{
+question: `What is tap changing?`,
+options: [
+"A. Load increase",
+"B. Adjusting transformer voltage",
+"C. Reducing frequency",
+"D. Increasing generation"
+],
+answer: "B"
+},
+
+{
+question: `What is a bus?`,
+options: [
+"A. Generator",
+"B. Common connection point",
+"C. Load",
+"D. Transformer"
+],
+answer: "B"
+},
+
+{
+question: `What is a line outage?`,
+options: [
+"A. Normal operation",
+"B. Transmission line out of service",
+"C. Load increase",
+"D. Voltage rise"
+],
+answer: "B"
+},
+
+{
+question: `What is a planned outage?`,
+options: [
+"A. Unexpected failure",
+"B. Scheduled removal of equipment",
+"C. Load shedding",
+"D. Voltage control"
+],
+answer: "B"
+},
+
+{
+question: `What is a forced outage?`,
+options: [
+"A. Planned maintenance",
+"B. Unexpected equipment failure",
+"C. Load reduction",
+"D. Voltage increase"
+],
+answer: "B"
+},
+
+{
+question: `What is switching?`,
+options: [
+"A. Increasing load",
+"B. Opening/closing electrical devices",
+"C. Voltage reduction",
+"D. Frequency control"
+],
+answer: "B"
+},
+
+{
+question: `What is a switching order?`,
+options: [
+"A. Load schedule",
+"B. Sequence of switching steps",
+"C. Voltage plan",
+"D. Frequency control"
+],
+answer: "B"
+},
+
+{
+question: `Why is a switching order important?`,
+options: [
+"A. Reduce cost",
+"B. Ensure safe operation",
+"C. Increase load",
+"D. Improve frequency"
+],
+answer: "B"
+},
+
+{
+question: `What is clearance?`,
+options: [
+"A. Voltage increase",
+"B. Permission to work on equipment",
+"C. Load increase",
+"D. Frequency control"
+],
+answer: "B"
+},
+
+{
+question: `What is tagging?`,
+options: [
+"A. Load increase",
+"B. Safety identification of equipment status",
+"C. Voltage control",
+"D. Frequency control"
+],
+answer: "B"
+},
+
+{
+question: `What is lockout/tagout?`,
+options: [
+"A. Increase load",
+"B. Safety procedure to prevent energization",
+"C. Voltage control",
+"D. Frequency control"
+],
+answer: "B"
+},
+
+{
+question: `What is grounding?`,
+options: [
+"A. Increase voltage",
+"B. Connecting equipment to earth for safety",
+"C. Load increase",
+"D. Frequency control"
+],
+answer: "B"
+},
+
+{
+question: `What is arc flash?`,
+options: [
+"A. Voltage drop",
+"B. Electrical explosion hazard",
+"C. Load increase",
+"D. Frequency change"
+],
+answer: "B"
+},
+
+{
+question: `What is PPE?`,
+options: [
+"A. Power plant equipment",
+"B. Personal protective equipment",
+"C. Protection process equipment",
+"D. Power performance evaluation"
+],
+answer: "B"
+},
+
+{
+question: `Why is PPE important?`,
+options: [
+"A. Reduce cost",
+"B. Protect personnel",
+"C. Increase load",
+"D. Improve voltage"
+],
+answer: "B"
+},
+
+{
+question: `What is situational awareness?`,
+options: [
+"A. Ignoring system conditions",
+"B. Understanding system status and risks",
+"C. Increasing load",
+"D. Reducing voltage"
+],
+answer: "B"
+},
+
+{
+question: `What is communication in operations?`,
+options: [
+"A. Optional task",
+"B. Critical for safe operations",
+"C. Not required",
+"D. Only for emergencies"
+],
+answer: "B"
+},
+
+{
+question: `What is three-part communication?`,
+options: [
+"A. Send only",
+"B. Send, repeat, confirm",
+"C. Ignore message",
+"D. Delay response"
+],
+answer: "B"
+},
+
+{
+question: `Why is repeat-back required?`,
+options: [
+"A. Waste time",
+"B. Ensure accuracy",
+"C. Increase load",
+"D. Reduce voltage"
+],
+answer: "B"
+},{
+question: `If a Balancing Authority does not comply with the Control Performance Standard, the Balancing Authority is not permitted to provide which of the following for any other Balancing Authority entities?`,
+options: [
+"A. Voltage support services",
+"B. Regulation of other services related to control performance",
+"C. Transmission scheduling services",
+"D. Emergency load shedding coordination"
+],
+answer: "B"
+},
+{
+question: `It is the obligation of each Balancing Authority to fulfill its commitment to the Interconnection and not ________ the other balancing Authorities in the Interconnection`,
+options: [
+"A. Burden",
+"B. Support",
+"C. Isolate",
+"D. Regulate"
+],
+answer: "A"
+},
+{
+question: `A Balancing Authority is performing Overlap Regulation Service for another Balancing Authority. Which of the following statements applies to the Balancing Authority providing this service?`,
+options: [
+"A. It must reduce its frequency bias",
+"B. The Balancing Authority's Frequency Bias Setting shall be modified to reflect the combined Frequency Bias Setting of both Balancing Areas.",
+"C. It must suspend AGC operations",
+"D. It must transfer control to the RC"
+],
+answer: "B"
+},
+{
+question: `Balancing Authority A is currently reading a system frequency of 59.95 Hz. Its Net Actual Interchange is +100 MW and its Net Scheduled Interchange is +200 MW. If Balancing Authority A's frequency bias setting is 100 MW/0.1 Hz, Balancing Authority A's AGC is pulsing its generators to do what?`,
+options: [
+"A. Decrease MW output",
+"B. Increase MW output",
+"C. Maintain current output",
+"D. Trip generation"
+],
+answer: "B"
+},
+{
+question: `Which of the following is a Real-time measurement of a Balancing Authority's control performance`,
+options: [
+"A. CPS1",
+"B. BAAL",
+"C. Frequency bias",
+"D. ACE average"
+],
+answer: "B"
+},
+{
+question: `Each Balancing Authority shall monitor which of the following against two standards: CPS1 and BAAL?`,
+options: [
+"A. Voltage",
+"B. Control performance",
+"C. Interchange schedules",
+"D. Load forecast"
+],
+answer: "B"
+},
+{
+question: `In the calculating of CPS1, which of the below conditions would contribute to a favorable score?`,
+options: [
+"A. Positive ACE when frequency is high",
+"B. Negative ACE when frequency is low",
+"C. Negative ACE when frequency is high, positive ACE when frequency is low",
+"D. Zero ACE at all times"
+],
+answer: "C"
+},
+{
+question: `If the frequency bias setting is a higher value than the frequency response of a Balancing Authority and a frequency decline is caused by a sudden loss of generation in an external balancing area, what will be the result?`,
+options: [
+"A. ACE will be zero",
+"B. ACE will be positive and AGC will decrease generation",
+"C. ACE will be a negative value and AGC will increase generation",
+"D. No AGC response"
+],
+answer: "C"
+},
+{
+question: `Which statement best describes the CPS1 requirement?`,
+options: [
+"A. CPS1 must equal exactly 100%",
+"B. CPS1 must be less than 100%",
+"C. CPS1 must be greater than or equal to 100% for the preceding 12 month period.",
+"D. CPS1 applies only during disturbances"
+],
+answer: "C"
+},
+{
+question: `To be in compliance with the BAL-001 requirements, a Balancing Authority must have which of the following?`,
+options: [
+"A. CPS1 greater than or equal to 100% and ACE does not exceed the BAAL more than 30 consecutive minutes",
+"B. Zero ACE at all times",
+"C. Frequency exactly 60 Hz",
+"D. No interchange deviations"
+],
+answer: "A"
+},{
+question: `Actual System Frequency (FA) is 60.03 Hz, a Balancing Authority is under-generating slightly to prepare for an upcoming interchange transaction. What is the Balancing Authority doing?`,
+options: [
+"A. Causing frequency instability",
+"B. The BA is helping the Interconnection Frequency.",
+"C. Violating CPS1",
+"D. Increasing inadvertent interchange"
+],
+answer: "B"
+},
+{
+question: `You are a Balancing Authority Operator. A neighboring Balancing Authority in the Interconnection suddenly had a 500 MW generator trip off line by generator differential. What part of the ACE equation, ACE = (NIA-NIS) - 10B (FA-FS) - IME, allows you and other Balancing Authorities in the Interconnection to contribute to the stabilization of the Interconnection frequency error?`,
+options: [
+"A. (NIA - NIS)",
+"B. IME",
+"C. 10B (FA-FS)",
+"D. Scheduled interchange only"
+],
+answer: "C"
+},
+{
+question: `In your Interconnection, a generator tripped that was large enough to reduce the frequency from 60.000 Hz to 59.940 Hz. Your Balancing Authority's Frequency Bias is 200 MW/0.1 Hz. How many MW would your system initially contribute to frequency support?`,
+options: [
+"A. 200 MW",
+"B. 60 MW",
+"C. 120 MW",
+"D. 80 MW"
+],
+answer: "C"
+},
+{
+question: `Which of the following would be a use of the IME portion of the ACE equation?`,
+options: [
+"A. Adjust scheduled interchange",
+"B. Represent flow of a tie line with an out of service meter.",
+"C. Measure frequency response",
+"D. Calculate CPS1"
+],
+answer: "B"
+},
+{
+question: `What happens to the Balancing Authority ACE Limit (BAAL) when frequency moves farther away from scheduled frequency?`,
+options: [
+"A. The limit becomes less restrictive",
+"B. The limit gets more restrictive.",
+"C. The limit stays the same",
+"D. The limit is removed"
+],
+answer: "B"
+},
+{
+question: `How is the Frequency Response Obligation (FRO) of a Frequency Response Sharing Group determined?`,
+options: [
+"A. By averaging all members",
+"B. By adding the individual FRO's of each member.",
+"C. By selecting the largest BA",
+"D. By RC assignment"
+],
+answer: "B"
+},
+{
+question: `A Balancing Authority has an ACE reading of -100 MW and frequency is 60.12 Hz. Is the BA exceeding the BAAL?`,
+options: [
+"A. Yes",
+"B. No",
+"C. Only during peak hours",
+"D. Cannot be determined"
+],
+answer: "B"
+},
+{
+question: `A Balancing Authority that is a member of a Generation Reserve Sharing Group is the Responsible Entity only in periods during which the Balancing Authority is not in active status under the applicable agreement or the governing rules for the Generation Reserve Sharing Group.`,
+options: [
+"A. True",
+"B. False",
+"C. Only during emergencies",
+"D. Only during maintenance"
+],
+answer: "B"
+},
+{
+question: `The minimum compliance for NERC DCS is 100% for all reportable disturbances.`,
+options: [
+"A. True",
+"B. False",
+"C. Only for large disturbances",
+"D. Only annually"
+],
+answer: "A"
+},
+{
+question: `A generator tripped in your Interconnection that was large enough to cause frequency to drop to 59.950 Hz. Your Balancing Authority's Frequency Bias is 120 MW/0.1 Hz. How many MWs would your system initially contribute to frequency support?`,
+options: [
+"A. 120 MW",
+"B. 50 MW",
+"C. 60 MWs",
+"D. 100 MW"
+],
+answer: "C"
+},{
+question: `A Balancing Authority is operating with a frequency of 59.98 Hz and has a negative ACE. What action will AGC most likely take?`,
+options: [
+"A. Decrease generation",
+"B. Maintain output",
+"C. Increase generation",
+"D. Shed load"
+],
+answer: "C"
+},{
+question: `Each Balancing Authority shall monitor which of the following against two standards: CPS1 and BAAL?`,
+options: [
+"A. Voltage",
+"B. Control performance",
+"C. Interchange schedules",
+"D. Load forecast"
+],
+answer: "B"
+},
+{
+question: `In the calculating of CPS1, which of the below conditions would contribute to a favorable score?`,
+options: [
+"A. Positive ACE when frequency is high",
+"B. Negative ACE when frequency is low",
+"C. Negative ACE when frequency is high, positive ACE when frequency is low",
+"D. Zero ACE at all times"
+],
+answer: "C"
+},
+{
+question: `If the frequency bias setting is a higher value than the frequency response of a Balancing Authority and a frequency decline is caused by a sudden loss of generation in an external balancing area, what will be the result?`,
+options: [
+"A. ACE will be zero",
+"B. ACE will be positive and AGC will decrease generation",
+"C. ACE will be a negative value and AGC will increase generation",
+"D. No AGC response"
+],
+answer: "C"
+},
+{
+question: `Which statement best describes the CPS1 requirement?`,
+options: [
+"A. CPS1 must equal exactly 100%",
+"B. CPS1 must be less than 100%",
+"C. CPS1 must be greater than or equal to 100% for the preceding 12 month period.",
+"D. CPS1 applies only during disturbances"
+],
+answer: "C"
+},
+{
+question: `To be in compliance with the BAL-001 requirements, a Balancing Authority must have which of the following?`,
+options: [
+"A. CPS1 greater than or equal to 100% and ACE does not exceed the BAAL more than 30 consecutive minutes",
+"B. Zero ACE at all times",
+"C. Frequency exactly 60 Hz",
+"D. No interchange deviations"
+],
+answer: "A"
+},
+{
+question: `Actual System Frequency (FA) is 60.03 Hz, a Balancing Authority is under-generating slightly to prepare for an upcoming interchange transaction. What is the Balancing Authority doing?`,
+options: [
+"A. Causing frequency instability",
+"B. The BA is helping the Interconnection Frequency.",
+"C. Violating CPS1",
+"D. Increasing inadvertent interchange"
+],
+answer: "B"
+},
+{
+question: `You are a Balancing Authority Operator. A neighboring Balancing Authority in the Interconnection suddenly had a 500 MW generator trip off line by generator differential. What part of the ACE equation, ACE = (NIA-NIS) - 10B (FA-FS) - IME, allows you and other Balancing Authorities in the Interconnection to contribute to the stabilization of the Interconnection frequency error?`,
+options: [
+"A. (NIA - NIS)",
+"B. IME",
+"C. 10B (FA-FS)",
+"D. Scheduled interchange only"
+],
+answer: "C"
+},
+{
+question: `In your Interconnection, a generator tripped that was large enough to reduce the frequency from 60.000 Hz to 59.940 Hz. Your Balancing Authority's Frequency Bias is 200 MW/0.1 Hz. How many MW would your system initially contribute to frequency support?`,
+options: [
+"A. 200 MW",
+"B. 60 MW",
+"C. 120 MW",
+"D. 80 MW"
+],
+answer: "C"
+},
+{
+question: `Which of the following would be a use of the IME portion of the ACE equation?`,
+options: [
+"A. Adjust scheduled interchange",
+"B. Represent flow of a tie line with an out of service meter.",
+"C. Measure frequency response",
+"D. Calculate CPS1"
+],
+answer: "B"
+},
+{
+question: `What happens to the Balancing Authority ACE Limit (BAAL) when frequency moves farther away from scheduled frequency?`,
+options: [
+"A. The limit becomes less restrictive",
+"B. The limit gets more restrictive.",
+"C. The limit stays the same",
+"D. The limit is removed"
+],
+answer: "B"
+},{
+question: `How is the Frequency Response Obligation (FRO) of a Frequency Response Sharing Group determined?`,
+options: [
+"A. By averaging all members",
+"B. By adding the individual FRO's of each member.",
+"C. By selecting the largest BA",
+"D. By RC assignment"
+],
+answer: "B"
+},
+{
+question: `A Balancing Authority has an ACE reading of -100 MW and frequency is 60.12 Hz. Is the BA exceeding the BAAL?`,
+options: [
+"A. Yes",
+"B. No",
+"C. Only during peak hours",
+"D. Cannot be determined"
+],
+answer: "B"
+},
+{
+question: `A Balancing Authority that is a member of a Generation Reserve Sharing Group is the Responsible Entity only in periods during which the Balancing Authority is not in active status under the applicable agreement or the governing rules for the Generation Reserve Sharing Group.`,
+options: [
+"A. True",
+"B. False",
+"C. Only during emergencies",
+"D. Only during maintenance"
+],
+answer: "B"
+},
+{
+question: `The minimum compliance for NERC DCS is 100% for all reportable disturbances.`,
+options: [
+"A. True",
+"B. False",
+"C. Only for large disturbances",
+"D. Only annually"
+],
+answer: "A"
+},
+{
+question: `A generator tripped in your Interconnection that was large enough to cause frequency to drop to 59.950 Hz. Your Balancing Authority's Frequency Bias is 120 MW/0.1 Hz. How many MWs would your system initially contribute to frequency support?`,
+options: [
+"A. 120 MW",
+"B. 50 MW",
+"C. 60 MWs",
+"D. 100 MW"
+],
+answer: "C"
+},
+{
+question: `A Balancing Authority is operating with a frequency of 59.98 Hz and has a negative ACE. What action will AGC most likely take?`,
+options: [
+"A. Decrease generation",
+"B. Maintain output",
+"C. Increase generation",
+"D. Shed load"
+],
+answer: "C"
+},
+{
+question: `Which of the following best describes Area Control Error (ACE)?`,
+options: [
+"A. The difference between scheduled and actual load",
+"B. The difference between actual and scheduled interchange adjusted for frequency and meter error",
+"C. The total generation output of a BA",
+"D. The frequency deviation only"
+],
+answer: "B"
+},
+{
+question: `What is the purpose of Frequency Bias in the ACE equation?`,
+options: [
+"A. To measure voltage deviation",
+"B. To account for load forecast error",
+"C. To represent a BA's response to frequency changes",
+"D. To schedule interchange"
+],
+answer: "C"
+},
+{
+question: `Which of the following conditions indicates overgeneration?`,
+options: [
+"A. Negative ACE",
+"B. Frequency below 60 Hz",
+"C. Positive ACE",
+"D. Zero interchange"
+],
+answer: "C"
+},
+{
+question: `Which standard requires Balancing Authorities to maintain CPS1 ≥ 100%?`,
+options: [
+"A. BAL-002",
+"B. BAL-001",
+"C. TOP-001",
+"D. VAR-001"
+],
+answer: "B"
+},
+{
+question: `What does a positive frequency deviation (FA > FS) indicate?`,
+options: [
+"A. Undergeneration",
+"B. Perfect balance",
+"C. Overgeneration",
+"D. Loss of load"
+],
+answer: "C"
+},
+{
+question: `Which of the following best describes BAAL?`,
+options: [
+"A. A long-term planning metric",
+"B. A limit to prevent excessive ACE during frequency deviations",
+"C. A voltage control requirement",
+"D. A generation dispatch tool"
+],
+answer: "B"
+},
+{
+question: `If a BA continuously exceeds BAAL, what is the risk?`,
+options: [
+"A. Increased voltage stability",
+"B. Improved CPS1 score",
+"C. Interconnection instability",
+"D. Reduced load demand"
+],
+answer: "C"
+},
+{
+question: `What is the primary purpose of the Disturbance Control Standard (DCS)?`,
+options: [
+"A. Maintain voltage",
+"B. Ensure recovery from disturbances within a defined time",
+"C. Control interchange schedules",
+"D. Reduce load variability"
+],
+answer: "B"
+},
+{
+question: `How quickly must a BA recover from a reportable disturbance under DCS?`,
+options: [
+"A. 5 minutes",
+"B. 10 minutes",
+"C. 15 minutes",
+"D. 30 minutes"
+],
+answer: "C"
+},
+{
+question: `What is the primary objective of the Disturbance Control Standard (DCS)?`,
+options: [
+"A. Maintain voltage within limits",
+"B. Ensure frequency is exactly 60 Hz",
+"C. Recover ACE to pre-disturbance levels within required time",
+"D. Control interchange schedules"
+],
+answer: "C"
+},
+{
+question: `What qualifies as a reportable disturbance under NERC standards?`,
+options: [
+"A. Any load change",
+"B. Loss of generation or load equal to or greater than the most severe single contingency",
+"C. Minor voltage fluctuation",
+"D. Scheduled outage"
+],
+answer: "B"
+},
+{
+question: `Which reserve is intended to respond immediately following a contingency?`,
+options: [
+"A. Replacement Reserve",
+"B. Supplemental Reserve",
+"C. Spinning Reserve",
+"D. Regulation Reserve"
+],
+answer: "C"
+},
+{
+question: `What is the purpose of Supplemental Reserve?`,
+options: [
+"A. Immediate response",
+"B. Replace spinning reserve after initial response",
+"C. Control voltage",
+"D. Maintain interchange schedules"
+],
+answer: "B"
+},
+{
+question: `Which of the following best describes Regulation Reserve?`,
+options: [
+"A. Long-term backup capacity",
+"B. Used for large disturbances",
+"C. Used for continuous small adjustments to maintain balance",
+"D. Only used during outages"
+],
+answer: "C"
+},
+{
+question: `If a Balancing Authority does not comply with the Control Performance Standard, the Balancing Authority is not permitted to provide which of the following for any other Balancing Authority entities?`,
+options: [
+"A. Voltage support",
+"B. Regulation or other services related to control performance",
+"C. Transmission service",
+"D. Load forecasting"
+],
+answer: "B"
+},
+{
+question: `A Balancing Authority has a frequency bias of 200 MW/0.1 Hz. Frequency drops from 60.00 Hz to 59.94 Hz. Approximately how much will the BA contribute to frequency response?`,
+options: [
+"A. 200 MW",
+"B. 60 MW",
+"C. 120 MW",
+"D. 80 MW"
+],
+answer: "C"
+},
+{
+question: `A Balancing Authority has an ACE of -100 MW while frequency is above 60 Hz. What does this indicate about BAAL compliance?`,
+options: [
+"A. BA is exceeding BAAL",
+"B. BA is within BAAL",
+"C. BA must shed load",
+"D. BA must trip generation"
+],
+answer: "B"
+},
+{
+question: `Which portion of the ACE equation allows Balancing Authorities to support interconnection frequency after a disturbance?`,
+options: [
+"A. (NIA - NIS)",
+"B. IME",
+"C. 10B (FA - FS)",
+"D. Scheduled interchange"
+],
+answer: "C"
+},
+{
+question: `If a Balancing Authority’s frequency bias is set higher than its actual frequency response, what will occur during a frequency decline?`,
+options: [
+"A. ACE will be zero",
+"B. ACE will be positive",
+"C. ACE will be negative",
+"D. No AGC response"
+],
+answer: "C"
+},
+{
+question: `What is the requirement for CPS1 compliance?`,
+options: [
+"A. Exactly 100%",
+"B. Less than 100%",
+"C. Greater than or equal to 100%",
+"D. Greater than 90%"
+],
+answer: "C"
+},
+{
+question: `Under BAL-001, how long can ACE exceed BAAL before it becomes non-compliant?`,
+options: [
+"A. 10 minutes",
+"B. 15 minutes",
+"C. 30 minutes",
+"D. 60 minutes"
+],
+answer: "C"
+},
+{
+question: `A generator trips in a neighboring BA. What is the expected immediate response from your BA?`,
+options: [
+"A. AGC response",
+"B. Manual dispatch",
+"C. Governor response",
+"D. Load shedding"
+],
+answer: "C"
+},
+{
+question: `What is the purpose of the IME term in the ACE equation?`,
+options: [
+"A. Adjust frequency bias",
+"B. Represent metering error or unmetered tie flow",
+"C. Control voltage",
+"D. Adjust interchange schedules"
+],
+answer: "B"
+},
+{
+question: `A BA is under-generating while frequency is above 60 Hz. What is the impact on interconnection frequency?`,
+options: [
+"A. It worsens frequency",
+"B. It helps frequency",
+"C. No impact",
+"D. Causes voltage instability"
+],
+answer: "B"
+},
+{
+question: `What is the main function of BAAL?`,
+options: [
+"A. Maintain voltage",
+"B. Limit ACE during frequency deviation",
+"C. Control interchange schedules",
+"D. Dispatch generation"
+],
+answer: "B"
+},
+{
+question: `A Balancing Authority has a 200 MW/0.1 Hz frequency bias with zero schedules. Frequency is 60.00 Hz and ACE is 0. What should the sum of all the Balancing Authority’s Interconnection ties equal?`,
+options: [
+"A. System Load",
+"B. Zero",
+"C. Total Generation",
+"D. Small MW amount out of the BA"
+],
+answer: "B"
+},
+{
+question: `Some inadvertent interchange is unavoidable. Which of the following would help keep inadvertent interchange down to a minimum?`,
+options: [
+"A. Have correct interchange schedules and accurate tie line metering",
+"B. Increase generator output during peak hours",
+"C. Adjust voltage schedules frequently",
+"D. Operate generators without AGC"
+],
+answer: "A"
+},
+{
+question: `A Balancing Authority has a 200 MW/0.1 Hz frequency bias with zero schedules. Frequency is 60.00 Hz and ACE is 0. What should the sum of all the Balancing Authority’s Interconnection ties equal?`,
+options: [
+"A. System Load",
+"B. Zero",
+"C. Total Generation",
+"D. Small MW amount out of the BA"
+],
+answer: "B"
+},
+{
+question: `A Balancing Authority is performing Overlap Regulation Service for another Balancing Authority. What must be done with the Frequency Bias Setting?`,
+options: [
+"A. Reduce it to zero",
+"B. Modify it to reflect combined Balancing Areas",
+"C. Keep it unchanged",
+"D. Transfer it to the RC"
+],
+answer: "B"
+},
+{
+question: `It is the obligation of each Balancing Authority to fulfill its commitment to the Interconnection and not ________ the other Balancing Authorities in the Interconnection.`,
+options: [
+"A. Support",
+"B. Burden",
+"C. Isolate",
+"D. Regulate"
+],
+answer: "B"
+},
+{
+question: `Each Balancing Authority shall monitor what against CPS1 and BAAL?`,
+options: [
+"A. Voltage",
+"B. Control Performance",
+"C. Interchange schedules",
+"D. Load forecast"
+],
+answer: "B"
+},
+{
+question: `Which condition contributes to a favorable CPS1 score?`,
+options: [
+"A. Positive ACE when frequency is high",
+"B. Negative ACE when frequency is low",
+"C. Negative ACE when frequency is high and positive ACE when frequency is low",
+"D. Zero ACE at all times"
+],
+answer: "C"
+},
+{
+question: `If the frequency bias setting is higher than the actual frequency response during a frequency decline, what will occur?`,
+options: [
+"A. ACE will be zero",
+"B. ACE will be positive",
+"C. ACE will be negative",
+"D. No AGC response"
+],
+answer: "C"
+},
+{
+question: `Which statement best describes CPS1 compliance?`,
+options: [
+"A. Must equal exactly 100%",
+"B. Must be less than 100%",
+"C. Must be greater than or equal to 100%",
+"D. Applies only during disturbances"
+],
+answer: "C"
+},
+{
+question: `To comply with BAL-001, what must a Balancing Authority achieve?`,
+options: [
+"A. Zero ACE at all times",
+"B. Exact 60 Hz frequency",
+"C. CPS1 ≥ 100% and ACE not exceed BAAL more than 30 minutes",
+"D. No interchange deviation"
+],
+answer: "C"
+},
+{
+question: `Actual system frequency is 60.03 Hz and a BA is under-generating slightly. What is the BA doing?`,
+options: [
+"A. Causing instability",
+"B. Helping interconnection frequency",
+"C. Violating CPS1",
+"D. Increasing inadvertent interchange"
+],
+answer: "B"
+},
+{
+question: `Which part of the ACE equation allows Balancing Authorities to support interconnection frequency?`,
+options: [
+"A. (NIA - NIS)",
+"B. IME",
+"C. 10B (FA - FS)",
+"D. Scheduled interchange"
+],
+answer: "C"
+},
+{
+question: `A generator trip causes frequency to drop from 60.00 Hz to 59.94 Hz. With a 200 MW/0.1 Hz bias, how much will the BA contribute?`,
+options: [
+"A. 200 MW",
+"B. 60 MW",
+"C. 120 MW",
+"D. 80 MW"
+],
+answer: "C"
+},
+{
+question: `Which of the following would be a use of the IME portion of the ACE equation?`,
+options: [
+"A. Adjust scheduled interchange",
+"B. Represent flow of a tie line with an out of service meter",
+"C. Measure frequency response",
+"D. Calculate CPS1"
+],
+answer: "B"
+},
+{
+question: `What happens to the Balancing Authority ACE Limit (BAAL) when frequency moves farther away from scheduled frequency?`,
+options: [
+"A. The limit becomes less restrictive",
+"B. The limit gets more restrictive",
+"C. The limit stays the same",
+"D. The limit is removed"
+],
+answer: "B"
+},
+{
+question: `How is the Frequency Response Obligation (FRO) of a Frequency Response Sharing Group determined?`,
+options: [
+"A. By averaging all members",
+"B. By adding the individual FROs of each member",
+"C. By selecting the largest BA",
+"D. By RC assignment"
+],
+answer: "B"
+},
+{
+question: `A Balancing Authority has an ACE reading of -100 MW and frequency is 60.12 Hz. Is the BA exceeding the BAAL?`,
+options: [
+"A. Yes",
+"B. No",
+"C. Only during peak hours",
+"D. Cannot be determined"
+],
+answer: "B"
+},
+{
+question: `A Balancing Authority that is a member of a Generation Reserve Sharing Group is the Responsible Entity only in periods during which the Balancing Authority is not in active status under the agreement.`,
+options: [
+"A. True",
+"B. False",
+"C. Only during emergencies",
+"D. Only during maintenance"
+],
+answer: "B"
+},
+{
+question: `The minimum compliance for NERC Disturbance Control Standard (DCS) is what percentage for reportable disturbances?`,
+options: [
+"A. 90%",
+"B. 95%",
+"C. 100%",
+"D. 110%"
+],
+answer: "C"
+},
+{
+question: `A generator trips causing frequency to drop to 59.950 Hz. With a frequency bias of 120 MW/0.1 Hz, how much will the BA contribute?`,
+options: [
+"A. 120 MW",
+"B. 50 MW",
+"C. 60 MW",
+"D. 100 MW"
+],
+answer: "C"
+},
+{
+question: `A Balancing Authority is operating at 59.98 Hz and has a negative ACE. What will AGC most likely do?`,
+options: [
+"A. Decrease generation",
+"B. Maintain output",
+"C. Increase generation",
+"D. Shed load"
+],
+answer: "C"
+},
+{
+question: `Which of the following best describes Area Control Error (ACE)?`,
+options: [
+"A. Difference between scheduled and actual load",
+"B. Difference between actual and scheduled interchange adjusted for frequency and meter error",
+"C. Total generation output",
+"D. Frequency deviation only"
+],
+answer: "B"
+},
+{
+question: `What is the purpose of Frequency Bias in the ACE equation?`,
+options: [
+"A. Measure voltage deviation",
+"B. Account for load forecast error",
+"C. Represent a BA’s response to frequency changes",
+"D. Schedule interchange"
+],
+answer: "C"
+},
+{
+question: `Which of the following conditions indicates overgeneration?`,
+options: [
+"A. Negative ACE",
+"B. Frequency below 60 Hz",
+"C. Positive ACE",
+"D. Zero interchange"
+],
+answer: "C"
+},
+{
+question: `Which standard requires Balancing Authorities to maintain CPS1 ≥ 100%?`,
+options: [
+"A. BAL-002",
+"B. BAL-001",
+"C. TOP-001",
+"D. VAR-001"
+],
+answer: "B"
+}
+];
+
+let answers = JSON.parse(localStorage.getItem("nercAnswers") || "{}");
+
+function renderQuiz(){
+const quiz = document.getElementById("quiz");
+quiz.innerHTML = "";
+
+flashcards.forEach((q,i)=>{
+let div = document.createElement("div");
+div.classList.add("question-block");
+
+let selected = answers[i];
+
+div.innerHTML = `
+<div class="question">
+<strong>Question ${i+1}</strong><br><br>
+${q.question}
+</div>
+
+${q.options.map(opt=>{
+let letter = opt[0];
+let isSelected = selected === letter ? "selected" : "";
+return `<div class="option ${isSelected}" onclick="selectAnswer(${i},'${letter}',this)">
+${opt}
+</div>`;
+}).join("")}
+`;
+
+quiz.appendChild(div);
+});
+}
+
+function selectAnswer(i,letter,el){
+answers[i]=letter;
+localStorage.setItem("nercAnswers", JSON.stringify(answers));
+
+let siblings = el.parentElement.querySelectorAll(".option");
+siblings.forEach(s=>s.classList.remove("selected"));
+el.classList.add("selected");
+}
+
+function submitTest(){
+let correct=0;
+
+flashcards.forEach((q,i)=>{
+if(answers[i]===q.answer) correct++;
+});
+
+let percent=((correct/flashcards.length)*100).toFixed(2);
+
+document.getElementById("result").innerText =
+`Score: ${percent}% (${correct}/${flashcards.length})`;
+}
+
+function resetTest(){
+if(confirm("Reset all answers?")){
+localStorage.removeItem("nercAnswers");
+location.reload();
+}
+}
+
+renderQuiz();
+
+</script>
+</body>
+</html>
+
+
+
+
